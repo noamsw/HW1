@@ -10,12 +10,15 @@ class AVLTree
         Node *right_child;
         Node *left_child;
         Node *parent;
+		//height from bottom of tree
         int height;
     public:
-    //default constructor
-    Node();
+    	//default constructor
+    	Node();
 		// Constructor initializing the data.
 		Node(T t);
+		//destructor
+		~Node();
 		// Calculate the balance point.
 		int getBalance();
 		// Get the actual data.
@@ -40,6 +43,7 @@ class AVLTree
   private:
   //a pointer to the root
   Node *root;
+  //add pointer to lowest node and highest node
   public:
   //default constructor for empty tree
   AVLTree();
@@ -51,7 +55,7 @@ class AVLTree
   std::exception remove(const T& t);
 
   private:
-  // Balance the tree
+  	// Balance the tree
 	void balanceAtNode(Node *n);
 	// Find the node containing the data.
 	Node *findNode(const T& t);
@@ -73,7 +77,7 @@ AVLTree<T>::Node::Node(){
     right=nullptr;
 }
 
-// Constructor initializing the data.
+// paramterized Constructor.
 template<typename T>
 AVLTree<T>::Node::Node(T data) {
   this.data = data;
@@ -213,13 +217,13 @@ int AVLTree<T>::Node::updateHeight() {
   return height;
 }
 
-//empty tree constructor
+//empty tree constructor, must decide how to instantiate
 template<typename T>
 AVLTree<T>::AVLTree() {
   root = nullptr;
 }
 
-// Constructor to populate the tree with one node.
+// Constructor to populate the tree with one node, not used in HW
 template<typename T>
 AVLTree<T>::AVLTree<T>(T t) {
   root = new Node(t);
@@ -303,24 +307,25 @@ std::exception AVLTree<T>::insert(const T& t) {
 		if (temp->getLeftChild() == nullptr) {
 		  added_node = temp->setLeftChild(new Node(t));
 		} 
-    else
+    	else
 		  temp = temp->getLeftChild();
-
+		}
 	  // Otherwise, if the value is greater than
 	  // the current node's value, go right. If
 	  // there isn't a right subtree, insert the
 	  // node, otherwise, it is next to check.
-	  } else if (val > temp->getData()) {
+	   else if (t > temp->getData()) {
 		if (temp->getRightChild() == nullptr) {
 		  added_node = temp->setRightChild(new Node(t));
 		} 
-    else
+    	else
 		  temp = temp->getRightChild();
-
+		}
 	  // Otherwise, the value is already in the
 	  // tree so abort.
-	  } 
+	   
     else
+	//should update to Std::exception
 		return false;
 	} // while
 
@@ -344,12 +349,14 @@ std::exception AVLTree<T>::remove(const T& t) {
   // Find the node to delete and if none, exit.
   Node *toBeRemoved = findNode(T);
   if (toBeRemoved == nullptr)
+  //should be std::exception
 	return false;
 
   // Get the parent and set the side the node is
   // on of the parent.
   enum {left, right} side;
   Node *p = toBeRemoved->getParent();
+  //enum is right also if the node is a root
   if (p != nullptr && p->getLeftChild() == toBeRemoved)
 	side = left;
   else
@@ -471,17 +478,13 @@ std::exception AVLTree<T>::remove(const T& t) {
 	  } else {
 		replacement = toBeRemoved->
 			getLeftChild()->getRightChild();
-		while (replacement->getRightChild() !=
-			nullptr)
+		while (replacement->getRightChild() !=nullptr)
 		  replacement = replacement->getRightChild();
 		replacement_parent = replacement->getParent();
-		replacement_parent->setRightChild(
-			replacement->getLeftChild());
+		replacement_parent->setRightChild(replacement->getLeftChild());
 		temp_node = replacement_parent;
-		replacement->setLeftChild(
-			toBeRemoved->getLeftChild());
-		replacement->setRightChild(
-			toBeRemoved->getRightChild());
+		replacement->setLeftChild(toBeRemoved->getLeftChild());
+		replacement->setRightChild(toBeRemoved->getRightChild());
 	  } // if
 
 	// Otherwise, we are going to modify the right
@@ -506,17 +509,13 @@ std::exception AVLTree<T>::remove(const T& t) {
 	} else {
 	  replacement = toBeRemoved->
 		  getRightChild()->getLeftChild();
-	  while (replacement->getLeftChild() !=
-		  nullptr)
+	  while (replacement->getLeftChild() !=nullptr)
 		replacement = replacement->getLeftChild();
 	  replacement_parent = replacement->getParent();
-	  replacement_parent->setLeftChild(
-		  replacement->getRightChild());
+	  replacement_parent->setLeftChild(replacement->getRightChild());
 	  temp_node = replacement_parent;
-	  replacement->setLeftChild(
-		  toBeRemoved->getLeftChild());
-	  replacement->setRightChild(
-		  toBeRemoved->getRightChild());
+	  replacement->setLeftChild(toBeRemoved->getLeftChild());
+	  replacement->setRightChild(toBeRemoved->getRightChild());
 	} // if
 
 	// Fix the parent to point to the new root.
@@ -533,6 +532,88 @@ std::exception AVLTree<T>::remove(const T& t) {
 	  p->setRightChild(replacement);
 	delete toBeRemoved;
 	balanceAtNode(temp_node);
-  } // if
+  }
   return true;
+}
+
+// Rotate the subtree left.
+template <typename T>
+void AVLTree<T>::rotateLeft(Node *n) {
+
+  // Get the node's parent and if it exists and the
+  // node was it's left subtree, remember we are
+  // processing the left, otherwise, the right.
+  enum {left, right} side;
+  Node *p = n->getParent();
+  if (p != nullptr && p->getLeftChild() == n)
+	side = left;
+  else
+	side = right;
+
+  // Get the node's right subtree as the new root
+  // and that subtree's left subtree. Make that
+  // left subtree the node's new right. Put our
+  // original node as the left subtree of our
+  // new root.
+  Node *temp = n->getRightChild();
+  //setrightchild updates parent
+  n->setRightChild(temp->getLeftChild());
+  temp->setLeftChild(n);
+
+  // Fix the original parent to point to the new
+  // root. If there isn't a parent, update the
+  // actual tree root. Otherwise, there is a
+  // parent so if we were the left subtree, update
+  // it, otherwise, the right.
+  if (p == nullptr)
+	setRoot(temp);
+  else if (side == left)
+	p->setLeftChild(temp);
+  else
+	p->setRightChild(temp);
+}
+
+// Rotate the subtree right.
+template <typename T>
+void AVLTree<T>::rotateRight(Node *n) {
+
+  // Get the node's parent and if it exists and the
+  // node was it's left subtree, remember we are
+  // processing the left, otherwise, the right.
+  enum {left, right} side;
+  Node *p = n->getParent();
+  if (p != nullptr && p->getLeftChild() == n)
+	side = left;
+  else
+	side = right;
+
+  // Get the node's left subtree as the new root
+  // and that subtree's right subtree. Make that
+  // right subtree the node's new left. Put our
+  // original node as the right subtree of our
+  // new root.
+  Node *temp = n->getLeftChild();
+  n->setLeftChild(temp->getRightChild());
+  temp->setRightChild(n);
+
+  // Fix the original parent to point to the new
+  // root. If there isn't a parent, update the
+  // actual tree root. Otherwise, there is a
+  // parent so if we were the left subtree, update
+  // it, otherwise, the right.
+  if (p == nullptr)
+	setRoot(temp);
+  else if (side == left)
+	p->setLeftChild(temp);
+  else
+	p->setRightChild(temp);
+}
+
+// Set the root. Change the tree root to the node
+// and if it exists, remove it's parent.
+template <typename T>
+void AVLTree<T>::setRoot(Node *n) {
+  root = n;
+  if (root != nullptr)
+	root->removeParent();
 }
