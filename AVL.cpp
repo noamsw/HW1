@@ -1,4 +1,4 @@
-
+#include <iostream> 
 template <typename T>
 class AVLTree
 {
@@ -12,14 +12,14 @@ class AVLTree
         Node *parent;
         int height;
     public:
-        //default constructor
-        Node();
+    //default constructor
+    Node();
 		// Constructor initializing the data.
 		Node(T t);
 		// Calculate the balance point.
 		int getBalance();
 		// Get the actual data.
-		int getData();
+		T getData();
 		// Get the height.
 		int getHeight();
 		// Get the left subtree.
@@ -37,24 +37,24 @@ class AVLTree
 		// Set the node's height.
 		int updateHeight();
     };
-    private:
-    //a pointer to the root
-    Node *root;
-    public:
-    //default constructor for empty tree
-    BST();
-    //parametrized constructor with one value t 
-    BST(T t);
-    //get height
-    int getHeight();
-    std::exception insert(T t);
-    std::exception remove(T t);
+  private:
+  //a pointer to the root
+  Node *root;
+  public:
+  //default constructor for empty tree
+  AVLTree();
+  //parametrized constructor with one value t 
+  AVLTree(T t);
+  //get height
+  int getHeight();
+  std::exception insert(const T& t);
+  std::exception remove(const T& t);
 
-    private:
-    // Balance the tree
-	void balance(Node *n);
+  private:
+  // Balance the tree
+	void balanceAtNode(Node *n);
 	// Find the node containing the data.
-	Node *findNode(T t);
+	Node *findNode(const T& t);
 	// Rotate the subtree left.
 	void rotateLeft(Node *n);
 	// Rotate the subtree left.
@@ -65,7 +65,7 @@ class AVLTree
 
 //constructor for node
 template<typename T>
-AVLTree::Node::Node(){
+AVLTree<T>::Node::Node(){
     data = T t();
     height = 0;
     parent=nullptr;
@@ -75,7 +75,7 @@ AVLTree::Node::Node(){
 
 // Constructor initializing the data.
 template<typename T>
-AVLTree::Node::Node(T data) {
+AVLTree<T>::Node::Node(T data) {
   this.data = data;
   height = 0;
   parent = nullptr;
@@ -84,7 +84,7 @@ AVLTree::Node::Node(T data) {
 }
 // Calculate the balance factoP: left.height-r.height
 template<typename T>
-int AVLTree::Node::getBalance() {
+int AVLTree<T>::Node::getBalance() {
 
   // If we don't have a left subtree, check the
   // right.
@@ -113,45 +113,45 @@ int AVLTree::Node::getBalance() {
   return result;
 }
 
-// Get the actual data.
+// Get the actual data, consider making const
 template <typename T>
-T AVLTree::Node::getData() {
+T AVLTree<T>::Node::getData() {
   return data;
 } 
 
 // Get the height.
 template<typename T>
-int AVLTree::Node::getHeight() {
+int AVLTree<T>::Node::getHeight() {
   return height;
 }
 
 // Get the left subtree.
 template<typename T>
-AVLTree::Node *AVLTree::Node::getLeftChild() {
+AVLTree<T>::Node *AVLTree<T>::Node::getLeftChild() {
   return left_child;
 }
 
 // Get the right subtree.
 template<typename T>
-AVLTree::Node *AVLTree::Node::getRightChild() {
+AVLTree<T>::Node *AVLTree<T>::Node::getRightChild() {
   return right_child;
 }
 
 // Get the node's parent.
 template<typename T>
-AVLTree::Node *AVLTree::Node::getParent() {
+AVLTree<T>::Node *AVLTree<T>::Node::getParent() {
   return parent;
 }
 
 // Remove the node's parent.
 template<typename T>
-void AVLTree::Node::removeParent() {
+void AVLTree<T>::Node::removeParent() {
   parent = nullptr;
 }
 
 // Set the left subtree.
 template<typename T>
-AVLTree::Node *AVLTree::Node::setLeftChild(Node *newLeft<T>)
+AVLTree<T>::Node *AVLTree<T>::Node::setLeftChild(Node *newLeft)
  {
   // If there is a left node, set it's parent to
   // be us. In any event, make it our left subtree
@@ -165,7 +165,7 @@ AVLTree::Node *AVLTree::Node::setLeftChild(Node *newLeft<T>)
 
 // Set the right subtree.
 template<typename T>
-AVLTree::Node *AVLTree::Node::setRightChild(Node *newRight<T>) {
+AVLTree<T>::Node *AVLTree<T>::Node::setRightChild(Node *newRight) {
   // If there is a right node, set it's parent to
   // be us. In any event, make it our right subtree
   // and update the height.
@@ -178,7 +178,7 @@ AVLTree::Node *AVLTree::Node::setRightChild(Node *newRight<T>) {
 
 // update the node's height.
 template<typename T>
-int AVLTree::Node::updateHeight() {
+int AVLTree<T>::Node::updateHeight() {
 
   // If we don't have a left subtree, check the
   // right.
@@ -215,24 +215,26 @@ int AVLTree::Node::updateHeight() {
 
 //empty tree constructor
 template<typename T>
-AVLTree::AVLTree() {
+AVLTree<T>::AVLTree() {
   root = nullptr;
 }
 
 // Constructor to populate the tree with one node.
 template<typename T>
-AVLTree::AVLTree(T t) {
+AVLTree<T>::AVLTree<T>(T t) {
   root = new Node(t);
 }
 
 // Balance the subtree.
 template<typename T>
-void AVLTree::balanceAtNode(Node *n<T>) {
+void AVLTree<T>::balanceAtNode(Node *n) {
 
   // Get the current balance
   //determine which rotation is needed RR,LL,RL,LR
   int bal = n->getBalance();
+
   if (bal > 1) {
+    //we are left heavy
     //determine if we are in LR case
 	if (n->getLeftChild()->getBalance() < 0)
 	  rotateLeft(n->getLeftChild());
@@ -245,4 +247,292 @@ void AVLTree::balanceAtNode(Node *n<T>) {
 	  rotateRight(n->getRightChild());
 	rotateLeft(n);
   }
+}
+
+// Find the node containing the data.
+template<typename T>
+AVLTree<T>::Node *AVLTree<T>::findNode(const T& data) {
+
+  // While nodes remain, if we found the right
+  // node, exit the loop. If the value we want
+  // is less than the current, check the left
+  // subtree, otherwise, the right.
+  Node *temp = root;
+  while (temp != nullptr) {
+	if (data == temp->getData())
+	  break;
+	else if (data < temp->getData())
+	  temp = temp->getLeftChild();
+	else
+	  temp = temp->getRightChild();
+  } // while
+  return temp;
+}
+
+// Get the tree's height.
+template <typename T>
+int AVLTree<T>::getHeight() {
+  return root->getHeight();
+}
+
+
+// Insert the value into the tree.
+template <typename T>
+std::exception AVLTree<T>::insert(const T& t) {
+
+  // If the tree is empty, add the new node as the
+  // root.
+  if (root == nullptr)
+	root = new Node(t);
+
+  // Otherwise, we need to find the insertion point.
+  else {
+
+	// Starting at the tree root search for the
+	// insertion point, until we have added the
+	// new node.
+	Node *added_node = nullptr;
+	Node *temp = root;
+	while (temp != nullptr && added_node == nullptr) {
+
+	  // If the value is less than the current
+	  // node's value, go left. If there isn't a
+	  // left subtree, insert the node, otherwise,
+	  // it is next to check.
+	  if (t < temp->getData()) {
+		if (temp->getLeftChild() == nullptr) {
+		  added_node = temp->setLeftChild(new Node(t));
+		} 
+    else
+		  temp = temp->getLeftChild();
+
+	  // Otherwise, if the value is greater than
+	  // the current node's value, go right. If
+	  // there isn't a right subtree, insert the
+	  // node, otherwise, it is next to check.
+	  } else if (val > temp->getData()) {
+		if (temp->getRightChild() == nullptr) {
+		  added_node = temp->setRightChild(new Node(t));
+		} 
+    else
+		  temp = temp->getRightChild();
+
+	  // Otherwise, the value is already in the
+	  // tree so abort.
+	  } 
+    else
+		return false;
+	} // while
+
+	// From the new node upwards to the root,
+	// updated the height and make sure the
+	// subtree is balanced.
+	temp = added_node;
+	while(temp != nullptr) {
+	  temp->updateHeight();
+	  balanceAtNode(temp);
+	  temp = temp->getParent();
+	} 
+  }
+  return true;
+}
+
+// Remove the value from the tree.
+template <typename T>
+std::exception AVLTree<T>::remove(const T& t) {
+
+  // Find the node to delete and if none, exit.
+  Node *toBeRemoved = findNode(T);
+  if (toBeRemoved == nullptr)
+	return false;
+
+  // Get the parent and set the side the node is
+  // on of the parent.
+  enum {left, right} side;
+  Node *p = toBeRemoved->getParent();
+  if (p != nullptr && p->getLeftChild() == toBeRemoved)
+	side = left;
+  else
+	side = right;
+
+  // If the node to be removed doesn't have a left
+  // subtree, check it's right subtree to figure
+  // out our next move.
+  if (toBeRemoved->getLeftChild() == nullptr)
+
+	// If we don't have any subtrees, we are the
+	// leaf so our parent doesn't need us.
+	if (toBeRemoved->getRightChild() == nullptr) {
+
+	  // If we don't have a parent, the tree is now
+	  // empty so change the root to null and delete
+	  // our node.
+	  if (p == nullptr) {
+		setRoot(nullptr);
+		delete toBeRemoved;
+
+	  // Otherwise, change the parent so it doesn't
+	  // point to us, delete ourself, update the
+	  // parent's height, and rebalance the tree.
+	  } else {
+		if (side == left)
+		  p->setLeftChild(nullptr);
+		else
+		  p->setRightChild(nullptr);
+		delete toBeRemoved;
+		p->updateHeight();
+		balanceAtNode(p);
+	  } // if
+
+	// Otherwise, there is a right subtree so use
+	// it to replace ourself.
+	} else {
+
+	  // If we don't have a parent, the tree is now
+	  // the right subtree and delete our node.
+	  if (p == nullptr) {
+		setRoot(toBeRemoved->getRightChild());
+		delete toBeRemoved;
+
+	  // Otherwise, change the parent so it doesn't
+	  // point to us, delete ourself, update the
+	  // parent's height, and rebalance the tree.
+	  } else {
+		if (side == left)
+		  p->setLeftChild(toBeRemoved->
+			  getRightChild());
+		else
+		  p->setRightChild(toBeRemoved->
+			  getRightChild());
+		delete toBeRemoved;
+		p->updateHeight();
+		balanceAtNode(p);
+	  } // if
+	} // if
+
+  // Otherwise, we have a left subtree so check the
+  // right one of the node being removed to decide
+  // what is next. If there isn't a right subtree,
+  // the left one will replace ourself.
+  else if (toBeRemoved->getRightChild() ==
+	  nullptr) {
+
+	// If we don't have a parent, the tree is now
+	// the left subtree and delete our node.
+	if (p == nullptr) {
+	  setRoot(toBeRemoved->getLeftChild());
+	  delete toBeRemoved;
+
+	// Otherwise, change the parent so it doesn't
+	// point to us, delete ourself, update the
+	// parent's height, and rebalance the tree.
+	} else {
+	  if(side == left)
+		p->setLeftChild(toBeRemoved->
+			getLeftChild());
+	  else
+		p->setRightChild(toBeRemoved->
+			getLeftChild());
+	  delete toBeRemoved;
+	  p->updateHeight();
+	  balanceAtNode(p);
+	} // if
+
+  // Otherwise, the node to remove has both subtrees
+  // so decide the best method to remove it.
+  } else {
+
+	// Check the balance to see which way to go.
+	// If the left side is deeper, modify it.
+	Node *replacement;
+	Node *replacement_parent;
+	Node *temp_node;
+	int bal = toBeRemoved->getBalance();
+	if (bal > 0) {
+
+	  // If the right subtree of the node's
+	  // left subtree is empty, we can move the
+	  // node's right subtree there.
+	  if (toBeRemoved->getLeftChild()->
+		  getRightChild() == nullptr) {
+		replacement = toBeRemoved->getLeftChild();
+		replacement->setRightChild(
+			toBeRemoved->getRightChild());
+		temp_node = replacement;
+
+	  // Otherwise, find the right most empty subtree
+	  // of our node's left subtree and it's
+	  // parent. This is our replacement. Make it's
+	  // parent point to it's left child instead
+	  // of itself. It is now free to replace the
+	  // deleted node. Copy both of the deleted
+	  // nodes subtrees into the replacement leaving
+	  // fixing up the parent below.
+	  } else {
+		replacement = toBeRemoved->
+			getLeftChild()->getRightChild();
+		while (replacement->getRightChild() !=
+			nullptr)
+		  replacement = replacement->getRightChild();
+		replacement_parent = replacement->getParent();
+		replacement_parent->setRightChild(
+			replacement->getLeftChild());
+		temp_node = replacement_parent;
+		replacement->setLeftChild(
+			toBeRemoved->getLeftChild());
+		replacement->setRightChild(
+			toBeRemoved->getRightChild());
+	  } // if
+
+	// Otherwise, we are going to modify the right
+	// side so, if the left subtree of the node's
+	// right subtree is empty, we can move the
+	// node's left subtree there.
+	} else if (toBeRemoved->getRightChild()->
+		getLeftChild() == nullptr) {
+	  replacement = toBeRemoved->getRightChild();
+	  replacement->setLeftChild(
+		  toBeRemoved->getLeftChild());
+	  temp_node = replacement;
+
+	// Otherwise, find the left most empty subtree
+	// of our node's right subtree and it's
+	// parent. This is our replacement. Make it's
+	// parent point to it's right child instead
+	// of itself. It is now free to replace the
+	// deleted node. Copy both of the deleted
+	// nodes subtrees into the replacement leaving
+	// fixing up the parent below.
+	} else {
+	  replacement = toBeRemoved->
+		  getRightChild()->getLeftChild();
+	  while (replacement->getLeftChild() !=
+		  nullptr)
+		replacement = replacement->getLeftChild();
+	  replacement_parent = replacement->getParent();
+	  replacement_parent->setLeftChild(
+		  replacement->getRightChild());
+	  temp_node = replacement_parent;
+	  replacement->setLeftChild(
+		  toBeRemoved->getLeftChild());
+	  replacement->setRightChild(
+		  toBeRemoved->getRightChild());
+	} // if
+
+	// Fix the parent to point to the new root.
+	// If there isn't a parent, update the actual
+	// tree root. Otherwise, there is a parent so
+	// if we were the left subtree, update it,
+	// otherwise, the right. In all cases, delete
+	// the node and rebalance the tree.
+	if (p == nullptr)
+	  setRoot(replacement);
+	else if (side == left)
+	  p->setLeftChild(replacement);
+	else
+	  p->setRightChild(replacement);
+	delete toBeRemoved;
+	balanceAtNode(temp_node);
+  } // if
+  return true;
 }
