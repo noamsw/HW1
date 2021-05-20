@@ -250,10 +250,10 @@ AVLTree<T>::AVLTree(T t) {
 
 }
 
-//destructor
+//destructor, maybe should be from highest?
 template<typename T>
 AVLTree<T>::~AVLTree(){
-	while(root)
+	while(root!=nullptr)
 	{
 		remove(root->getData());
 	}
@@ -319,8 +319,8 @@ bool AVLTree<T>::insert(const T& t) {
   // root.
   if (root == nullptr){
 	 root = new Node(t);
-	lowest = root;
-	highest = root; 
+	 lowest = root;
+	 highest = root; 
   }
 	
 
@@ -341,7 +341,7 @@ bool AVLTree<T>::insert(const T& t) {
 	  if (t < temp->getData()) {
 		if (temp->getLeftChild() == nullptr) {
 		  added_node = temp->setLeftChild(new Node(t));
-		  if(lowest){
+		  if(lowest!=nullptr){
 			if(t < lowest->getData())
 		  	lowest = added_node;
 		  }
@@ -358,7 +358,7 @@ bool AVLTree<T>::insert(const T& t) {
 	   else if (t > temp->getData()) {
 		if (temp->getRightChild() == nullptr) {
 		  added_node = temp->setRightChild(new Node(t));
-		  if(highest){
+		  if(highest != nullptr){
 			  if(t > highest->getData())
 			  highest = added_node;
 		  }
@@ -694,14 +694,12 @@ void AVLTree<T>::print() {
 
   // If the tree is empty, say so.
   if (root == nullptr)
-	std::cout << "Tree is empty!" <<
-		std::endl;
+	std::cout << "Tree is empty!" <<std::endl;
 
   // Otherwise, if the tree has a height more than 4
   // (5 rows), it is too wide.
   else if (root->getHeight() > 4)
-	std::cout << "Not currently supported!" <<
-		std::endl;
+	std::cout << "Not currently supported!" <<std::endl;
 
   // Otherwise, set up to display the tree. Get
   // the maximum depth and for each possible
@@ -713,7 +711,7 @@ void AVLTree<T>::print() {
 	  printSubtree(root, depth, max-depth+1, true);
 	  std::cout << std::endl;
 	} // for
-  } // if
+  } 
 } // print
 
 // --------------------------------------------------
