@@ -1,0 +1,3 @@
+C:/Users/noams/OneDrive/Documents/Schoolwork/mivnei/HW/HW1/build/CMakeFiles/test1.dir
+C:/Users/noams/OneDrive/Documents/Schoolwork/mivnei/HW/HW1/build/CMakeFiles/edit_cache.dir
+C:/Users/noams/OneDrive/Documents/Schoolwork/mivnei/HW/HW1/build/CMakeFiles/rebuild_cache.dir
