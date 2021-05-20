@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/noams/OneDrive/Documents/Schoolwork/mivnei/HW/HW1/AVL.cpp
+iostream
+-
+ctime
+-
+iomanip
+-
+
