@@ -1,2 +1,2 @@
 just making sure i can commit :)
-great, checking if "merge" changed the commiting process
+great, checking if "merge" changed the commiting process?
