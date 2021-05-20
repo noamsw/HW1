@@ -1,4 +1,6 @@
 #include <iostream> 
+#include <ctime>
+#include <iomanip>
 template <typename T>
 class AVLTree
 {
@@ -18,7 +20,7 @@ class AVLTree
 		// Constructor initializing the data.
 		Node(T t);
 		//destructor
-		~Node();
+		//~Node(); not sure why this ruins things
 		// Calculate the balance point.
 		int getBalance();
 		// Get the actual data.
@@ -39,6 +41,7 @@ class AVLTree
 		Node *setRightChild(Node *newRight);
 		// Set the node's height.
 		int updateHeight();
+		
     };
   private:
   //a pointer to the root
@@ -51,8 +54,11 @@ class AVLTree
   AVLTree(T t);
   //get height
   int getHeight();
-  std::exception insert(const T& t);
-  std::exception remove(const T& t);
+  //std::exception insert(const T& t);
+  bool insert(const T& t);
+  //std::exception remove(const T& t);
+  bool remove(const T& t);
+  void print();
 
   private:
   	// Balance the tree
@@ -65,22 +71,24 @@ class AVLTree
 	void rotateRight(Node *n);
 	// Set the root.
 	void setRoot(Node *n);
+	void printSubtree(Node *subtree, int depth,int offset, bool first);
+	int spacing(int offset);
 };
 
 //constructor for node
-template<typename T>
+/**template<typename T>
 AVLTree<T>::Node::Node(){
     data = T t();
     height = 0;
     parent=nullptr;
     left=nullptr;
     right=nullptr;
-}
+}**/
 
 // paramterized Constructor.
 template<typename T>
-AVLTree<T>::Node::Node(T data) {
-  this.data = data;
+AVLTree<T>::Node::Node(T val) {
+  data = val;
   height = 0;
   parent = nullptr;
   left_child = nullptr;
@@ -131,19 +139,19 @@ int AVLTree<T>::Node::getHeight() {
 
 // Get the left subtree.
 template<typename T>
-AVLTree<T>::Node *AVLTree<T>::Node::getLeftChild() {
+typename AVLTree<T>::Node *AVLTree<T>::Node::getLeftChild() {
   return left_child;
 }
 
 // Get the right subtree.
 template<typename T>
-AVLTree<T>::Node *AVLTree<T>::Node::getRightChild() {
+typename AVLTree<T>::Node *AVLTree<T>::Node::getRightChild() {
   return right_child;
 }
 
 // Get the node's parent.
 template<typename T>
-AVLTree<T>::Node *AVLTree<T>::Node::getParent() {
+typename AVLTree<T>::Node *AVLTree<T>::Node::getParent() {
   return parent;
 }
 
@@ -155,7 +163,7 @@ void AVLTree<T>::Node::removeParent() {
 
 // Set the left subtree.
 template<typename T>
-AVLTree<T>::Node *AVLTree<T>::Node::setLeftChild(Node *newLeft)
+typename AVLTree<T>::Node *AVLTree<T>::Node::setLeftChild(Node *newLeft)
  {
   // If there is a left node, set it's parent to
   // be us. In any event, make it our left subtree
@@ -169,7 +177,7 @@ AVLTree<T>::Node *AVLTree<T>::Node::setLeftChild(Node *newLeft)
 
 // Set the right subtree.
 template<typename T>
-AVLTree<T>::Node *AVLTree<T>::Node::setRightChild(Node *newRight) {
+typename AVLTree<T>::Node *AVLTree<T>::Node::setRightChild(Node *newRight) {
   // If there is a right node, set it's parent to
   // be us. In any event, make it our right subtree
   // and update the height.
@@ -225,7 +233,7 @@ AVLTree<T>::AVLTree() {
 
 // Constructor to populate the tree with one node, not used in HW
 template<typename T>
-AVLTree<T>::AVLTree<T>(T t) {
+AVLTree<T>::AVLTree(T t) {
   root = new Node(t);
 }
 
@@ -255,7 +263,7 @@ void AVLTree<T>::balanceAtNode(Node *n) {
 
 // Find the node containing the data.
 template<typename T>
-AVLTree<T>::Node *AVLTree<T>::findNode(const T& data) {
+typename AVLTree<T>::Node *AVLTree<T>::findNode(const T& data) {
 
   // While nodes remain, if we found the right
   // node, exit the loop. If the value we want
@@ -282,7 +290,7 @@ int AVLTree<T>::getHeight() {
 
 // Insert the value into the tree.
 template <typename T>
-std::exception AVLTree<T>::insert(const T& t) {
+bool AVLTree<T>::insert(const T& t) {
 
   // If the tree is empty, add the new node as the
   // root.
@@ -344,10 +352,10 @@ std::exception AVLTree<T>::insert(const T& t) {
 
 // Remove the value from the tree.
 template <typename T>
-std::exception AVLTree<T>::remove(const T& t) {
+bool AVLTree<T>::remove(const T& t) {
 
   // Find the node to delete and if none, exit.
-  Node *toBeRemoved = findNode(T);
+  Node *toBeRemoved = findNode(t);
   if (toBeRemoved == nullptr)
   //should be std::exception
 	return false;
@@ -616,4 +624,113 @@ void AVLTree<T>::setRoot(Node *n) {
   root = n;
   if (root != nullptr)
 	root->removeParent();
+}
+
+//print the tree
+template <typename T>
+void AVLTree<T>::print() {
+
+  // If the tree is empty, say so.
+  if (root == nullptr)
+	std::cout << "Tree is empty!" <<
+		std::endl;
+
+  // Otherwise, if the tree has a height more than 4
+  // (5 rows), it is too wide.
+  else if (root->getHeight() > 4)
+	std::cout << "Not currently supported!" <<
+		std::endl;
+
+  // Otherwise, set up to display the tree. Get
+  // the maximum depth and for each possible
+  // level, output that level's elements and
+  // finish off the line.
+  else {
+	int max = root->getHeight();
+	for (int depth = 0; depth <= max; depth++) {
+	  printSubtree(root, depth, max-depth+1, true);
+	  std::cout << std::endl;
+	} // for
+  } // if
+} // print
+
+// --------------------------------------------------
+// Print the subtree.  The leftmost branch will have
+// first true. The level counts up from the bottom
+// for the line we are doing. The depth is how
+// many layers to skip over.
+template <typename T>
+void AVLTree<T>::printSubtree(Node *subtree, int depth,
+	int level, bool first) {
+
+  // If we need to go deeper in the subtree, do so.
+  // If the subtree is empty, pass it down, otherwise
+  // pass both left and right subtrees.
+  if (depth > 0) {
+	if (subtree == nullptr) {
+	  printSubtree(subtree, depth-1, level, first);
+	  printSubtree(subtree, depth-1, level, false);
+	} else {
+	  printSubtree(subtree->getLeftChild(), depth-1,
+		  level, first);
+	  printSubtree(subtree->getRightChild(), depth-1,
+		  level, false);
+	} // if
+
+  // Otherwise, if the subtree is empty, display
+  // an empty element. The leftmost element only
+  // needs half the spacing.
+  } else if (subtree == nullptr)
+	std::cout << std::setw((first)?
+		spacing(level)/2:spacing(level)) << "-";
+
+  // Otherwise, we have a live element so display
+  // it. Once more, use half spacing for the
+  // leftmost element.
+  else
+	std::cout << std::setw((first)?
+		spacing(level)/2:spacing(level)) <<
+		subtree->getData();
+} // printSubtree
+
+// Figure out the default spacing for element. Each
+// higher level doubles the preceeding. The bottom
+// level is one.
+template<typename T>
+int AVLTree<T>::spacing(int level) {
+  int result = 2;
+  for (int i = 0; i < level; i++)
+	result += result;
+  return result;
+}
+
+int main() {
+
+  // Allocate an array to keep track of the data we
+  // add to the tree, initialize the random numbers,
+  // allocate an empty tree.
+  int data[10];
+  srand(time(0));
+  AVLTree<int> *tree = new AVLTree<int>();
+
+  // Insert 10 unique random numbers into the tree.
+  // For each number we are adding, attempt to insert
+  // a random number, until it works because it is
+  // unique. Afterwards, display the new number and
+  // the current state of the tree.
+  for (int i = 0; i < 10; i++) {
+	while (!tree->insert(data[i] = rand()%100));
+	std::cout << "Adding " << data[i] << std::endl;
+	tree->print();
+  } // for
+
+  // Remove each of the numbers by displaying the
+  // number being removed, performing the removal,
+  // and displaying the current state of the tree.
+  for (int i = 0; i < 10; i++) {
+	std::cout << "Removing " << data[i] << std::endl;
+	tree->remove(data[i]);
+	tree->print();
+  } // for
+  return 0;
 }
