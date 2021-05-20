@@ -1,6 +1,0 @@
-cmake_minimum_required(VERSION 3.19.3)
-project(examstudy VERSION 0.1.0 LANGUAGES CXX)
-set(MTM_FLAGS_DEBUG "-std=c99 --pedantic-errors -Wall -Werror")
-set(MTM_FLAGS_RELEASE "${MTM_FLAGS_DEBUG} -DNDEBUG")
-set(CMAKE_C_FLAGS ${MTM_FLAGS_DEBUG})
-add_executable(test1 AVL.cpp)
