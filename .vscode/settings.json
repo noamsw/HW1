@@ -41,5 +41,6 @@
         "xlocmon": "cpp",
         "xloctime": "cpp"
     },
-    "cmake.sourceDirectory": "${workspaceFolder}/."
+    "cmake.sourceDirectory": "${workspaceFolder}/.",
+    "debug.allowBreakpointsEverywhere": true
 }
